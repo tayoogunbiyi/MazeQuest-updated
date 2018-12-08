@@ -13,15 +13,14 @@ def turn_left(pwm):
     pwm.ChangeDutyCycle(2.5)
 
 def adjust_left(pwm,duty_cycle):
-    if(duty_cycle <= 4 ): return 4
     if(duty_cycle != 7.5): return duty_cycle
     new_duty_cycle = duty_cycle-2
     pwm.ChangeDutyCycle(new_duty_cycle)
     return new_duty_cycle
 
 def adjust_right(pwm,duty_cycle):
-    if(duty_cycle != 7.5): return duty_cycle
-    if(duty_cycle >= 11): return 11
+    print("Adjusting right")
+    if duty_cycle != 7.5: return duty_cycle
     new_duty_cycle = duty_cycle+2
     pwm.ChangeDutyCycle(new_duty_cycle)
     return new_duty_cycle
