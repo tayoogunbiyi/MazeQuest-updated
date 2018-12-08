@@ -67,6 +67,7 @@ def forward():
 def backward(): 
     print "Going backwards"
     MOVING_BACKWARDS = True
+    print("Setting backwards to true :",MOVING_BACKWARDS)
     GPIO.output(Motor1A,GPIO.LOW)
     GPIO.output(Motor1B,GPIO.HIGH)
     GPIO.output(Motor1E,GPIO.HIGH)
@@ -84,15 +85,15 @@ def stop():
 
 
 def spin():
-    set_neutral
-    sleep(0.5)
+    set_neutral()
+    sleep(0.2)
     GPIO.output(Motor1E,GPIO.HIGH)
     GPIO.output(Motor2E,GPIO.HIGH)
     GPIO.output(Motor1A,GPIO.HIGH)
     GPIO.output(Motor1B,GPIO.LOW)
     GPIO.output(Motor2A,GPIO.LOW)
     GPIO.output(Motor2B,GPIO.HIGH)
-    sleep(0.2)
+    sleep(0.7)
 def front_distance():
     print("Calling front distance")
     i = 0 
@@ -148,8 +149,12 @@ try:
             backward()
             continue
         data = check_right_left(LEFT_ECHO,RIGHT_ECHO,LEFT_TRIG,RIGHT_TRIG,pwm)
+        print(data)
+        print("Moving backwards is ",MOVING_BACKWARDS)
         if MOVING_BACKWARDS and data[0] > 6 and data[1] > 6:
+            print("MOVING BACKWARDS TRUE")
             stop()
+            sleep(0.2)
             spin()
             continue
         
