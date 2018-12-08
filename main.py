@@ -1,6 +1,6 @@
 import RPi.GPIO as GPIO
 from time import sleep
-from servo import set_neutral,turn_left,turn_right,adjust_left,read_distance
+from servo import set_neutral,turn_left,turn_right,adjust_left,read_distance,adjust_right
  
 GPIO.setmode(GPIO.BOARD)
 
@@ -53,7 +53,6 @@ def stop():
 
 def spin():
     #Turn servo to full angle
-    adjust_left(pwm)
     sleep(0.5)
     GPIO.output(Motor1E,GPIO.HIGH)
     GPIO.output(Motor2E,GPIO.HIGH)
@@ -62,10 +61,21 @@ def spin():
     GPIO.output(Motor2A,GPIO.LOW)
     GPIO.output(Motor2B,GPIO.HIGH)
     sleep(0.2)
-    set_neutral(pwm)
+    
 
 
+# turn_left(pwm)
+# sleep(0.5)
+# turn_right(pwm)
+# sleep(0.5)
+# set_neutral(pwm)
+# sleep(0.5)
 
-spin()
+CURRENT_DC = adjust_left(pwm,CURRENT_DC)
+sleep(0.5)
+CURRENT_DC = 7.5
+CURRENT_DC = adjust_right(pwm,CURRENT_DC)
+sleep(0.5)
+CURRENT_DC = set_neutral(pwm)
 sleep(0.5)
 GPIO.cleanup()
