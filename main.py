@@ -1,6 +1,7 @@
 import RPi.GPIO as GPIO
 from time import sleep
-from servo import set_neutral,turn_left,turn_right,adjust_left,read_distance,adjust_right
+from servo import set_neutral,turn_left,turn_right,adjust_left,adjust_right
+from ultrasonic import read_distance
  
 GPIO.setmode(GPIO.BOARD)
 
@@ -8,6 +9,31 @@ GPIO.setup(8,GPIO.OUT)
 pwm = GPIO.PWM(8, 50)
 CURRENT_DC = 7.5
 pwm.start(CURRENT_DC)
+
+# GPIO.output(LEFT_TRIG,1)
+# time.sleep(0.000001)
+# GPIO.output(LEFT_TRIG,0)
+
+FRONT_TRIG = 37
+FRONT_ECHO = 38
+
+RIGHT_TRIG = 33
+RIGHT_ECHO = 35
+
+LEFT_TRIG = 19
+LEFT_ECHO = 21
+
+
+GPIO.setup(LEFT_TRIG,GPIO.OUT)
+GPIO.output(LEFT_TRIG,0)
+GPIO.setup(LEFT_ECHO,GPIO.IN)
+
+
+i = 0
+while i < 7000:
+    print(read_distance(LEFT_ECHO,LEFT_TRIG))
+    i+=1
+
 
 #Left
 Motor1E = 11
@@ -72,9 +98,9 @@ def spin():
 # sleep(0.5)
 
 
-CURRENT_DC = adjust_left(pwm,CURRENT_DC)
-sleep(0.5)
-CURRENT_DC = set_neutral(pwm)
-sleep(0.5)
-print("Final duty cycle is ",CURRENT_DC)
+# CURRENT_DC = adjust_left(pwm,CURRENT_DC)
+# sleep(0.5)
+# CURRENT_DC = set_neutral(pwm)
+# sleep(0.5)
+# print("Final duty cycle is ",CURRENT_DC)
 GPIO.cleanup()
