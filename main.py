@@ -55,6 +55,7 @@ GPIO.setup(Motor2E,GPIO.OUT)
  
 def forward():
     print "Going forwards"
+    MOVING_BACKWARDS = False
     GPIO.output(Motor1A,GPIO.HIGH)
     GPIO.output(Motor1B,GPIO.LOW)
     GPIO.output(Motor1E,GPIO.HIGH)
@@ -65,6 +66,7 @@ def forward():
  
 def backward(): 
     print "Going backwards"
+    MOVING_BACKWARDS = True
     GPIO.output(Motor1A,GPIO.LOW)
     GPIO.output(Motor1B,GPIO.HIGH)
     GPIO.output(Motor1E,GPIO.HIGH)
@@ -75,6 +77,7 @@ def backward():
  
 def stop():
     print "Now stop"
+    MOVING_BACKWARDS = False
     GPIO.output(Motor1E,GPIO.LOW)
     GPIO.output(Motor2E,GPIO.LOW)
 
@@ -136,11 +139,20 @@ def adjust(adjust_left,adjust_right,FAVORED_SIDE,CURRENT_DC):
 
 
 FAVORED_SIDE = None
+MOVING_BACKWARDS = False
 
 #forward()
 try:
     while True:
-        if read_distance()
+        if read_distance(FRONT_ECHO,FRONT_TRIG) < 5:
+            backward()
+            continue
+        data = check_right_left(LEFT_ECHO,RIGHT_ECHO,LEFT_TRIG,RIGHT_TRIG,pwm)
+        if MOVING_BACKWARDS and data[0] > 6 and data[1] > 6:
+            stop()
+            spin()
+            continue
+        
         adjust_thread = threading.Thread(target=adjust,args=(adjust_left,adjust_right,FAVORED_SIDE,CURRENT_DC))
         
         data = check_right_left(LEFT_ECHO,RIGHT_ECHO,LEFT_TRIG,RIGHT_TRIG,pwm)
