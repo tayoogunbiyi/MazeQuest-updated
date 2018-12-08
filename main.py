@@ -71,11 +71,10 @@ def spin():
 # set_neutral(pwm)
 # sleep(0.5)
 
+
 CURRENT_DC = adjust_left(pwm,CURRENT_DC)
-sleep(0.5)
-CURRENT_DC = 7.5
-CURRENT_DC = adjust_right(pwm,CURRENT_DC)
 sleep(0.5)
 CURRENT_DC = set_neutral(pwm)
 sleep(0.5)
+print("Final duty cycle is ",CURRENT_DC)
 GPIO.cleanup()
