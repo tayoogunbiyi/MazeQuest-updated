@@ -1,5 +1,6 @@
 import RPi.GPIO as GPIO
 import time
+from time import sleep
 from servo import adjust_left,adjust_right
 
 #Left
@@ -35,8 +36,16 @@ def check_right_left(ECHO1,ECHO2,TRIG1,TRIG2,pwm):
     ECHO1 & TRIG1 - Echo and trig pins of left sensor
     ECHO2 & TRIG2- Echo and trig pins of the right sensor
     '''
+    dist1 = read_distance(ECHO1,TRIG1)
+    dist2 = read_distance(ECHO2,TRIG2)
+    sleep(0.2)
     
-    return [read_distance(ECHO1,TRIG1),read_distance(ECHO2,TRIG2)] 
+    if not dist1: return None
+    return [dist1,dist2]
+        
+    
+        
+
         
     
         

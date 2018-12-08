@@ -137,23 +137,36 @@ def adjust(adjust_left,adjust_right,FAVORED_SIDE,CURRENT_DC):
 
 FAVORED_SIDE = None
 
+#forward()
 try:
     while True:
-                
+        if read_distance()
         adjust_thread = threading.Thread(target=adjust,args=(adjust_left,adjust_right,FAVORED_SIDE,CURRENT_DC))
+        
         data = check_right_left(LEFT_ECHO,RIGHT_ECHO,LEFT_TRIG,RIGHT_TRIG,pwm)
+        if not data:
+            continue
         if(data[0] < 7 or data[1] < 7):
             if(data[0] < 7):
                 FAVORED_SIDE = "right"
-                adjust_thread.start()
+                if not adjust_thread.is_alive():
+                    adjust_thread.start()
+                
             else:
                 FAVORED_SIDE =  "left"
-                adjust_thread.start()
+                if not adjust_thread.is_alive():
+                    adjust_thread.start()
+                
+                
         else:
             continue
 
-except:
+except Exception as e:
+    stop()
+    GPIO.cleanup()
+    print(e)
     GPIO.cleanup()
 
 
-# GPIO.cleanup()
+stop()
+GPIO.cleanup()
