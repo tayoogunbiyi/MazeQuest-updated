@@ -53,7 +53,6 @@ def stop():
 
 def spin():
     #Turn servo to full angle
-    adjust_left(pwm)
     sleep(0.5)
     GPIO.output(Motor1E,GPIO.HIGH)
     GPIO.output(Motor2E,GPIO.HIGH)
@@ -62,10 +61,13 @@ def spin():
     GPIO.output(Motor2A,GPIO.LOW)
     GPIO.output(Motor2B,GPIO.HIGH)
     sleep(0.2)
-    set_neutral(pwm)
+    
 
 
-
-spin()
+turn_left(pwm)
+sleep(0.5)
+turn_right(pwm)
+sleep(0.5)
+set_neutral(pwm)
 sleep(0.5)
 GPIO.cleanup()
