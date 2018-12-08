@@ -3,7 +3,7 @@ import threading
 import RPi.GPIO as GPIO
 from time import sleep
 from servo import set_neutral,turn_left,turn_right,adjust_left,adjust_right
-from ultrasonic import check_right_left
+from ultrasonic import check_right_left,read_distance
 
 GPIO.setmode(GPIO.BOARD)
 
@@ -11,6 +11,9 @@ GPIO.setup(8,GPIO.OUT)
 pwm = GPIO.PWM(8, 50)
 CURRENT_DC = 7.5
 pwm.start(CURRENT_DC)
+
+set_neutral(pwm)
+
 FRONT_TRIG = 37
 FRONT_ECHO = 38
 
@@ -29,9 +32,9 @@ GPIO.setup(RIGHT_TRIG,GPIO.OUT)
 GPIO.output(RIGHT_TRIG,0)
 GPIO.setup(RIGHT_ECHO,GPIO.IN)
 
-# GPIO.setup(FRONT_ECHO,GPIO.OUT)
-# GPIO.output(LEFT_TRIG,0)
-# GPIO.setup(LEFT_ECHO,GPIO.IN)
+GPIO.setup(FRONT_TRIG,GPIO.OUT)
+GPIO.output(FRONT_TRIG,0)
+GPIO.setup(FRONT_ECHO,GPIO.IN)
 
 #Left
 Motor1E = 11
@@ -75,8 +78,10 @@ def stop():
     GPIO.output(Motor1E,GPIO.LOW)
     GPIO.output(Motor2E,GPIO.LOW)
 
+
+
 def spin():
-    #Turn servo to full angle
+    set_neutral
     sleep(0.5)
     GPIO.output(Motor1E,GPIO.HIGH)
     GPIO.output(Motor2E,GPIO.HIGH)
@@ -85,20 +90,70 @@ def spin():
     GPIO.output(Motor2A,GPIO.LOW)
     GPIO.output(Motor2B,GPIO.HIGH)
     sleep(0.2)
+def front_distance():
+    print("Calling front distance")
+    i = 0 
+    i+=1
+    distance = read_distance(FRONT_ECHO,FRONT_TRIG)
+    print("distance : ",distance)
+    if distance < 10:
+        print("Distance is less than 10")
+        stop()
+        sleep(0.1)
+        backward()
+        sleep(0.5)
+        spin()
+        sleep(0.75)
+        stop()
+        sleep(0.1)
+        forward()
+    else:
+        pass
 
-left_right_thread = threading.Thread(target=check_right_left,args=(
-    LEFT_ECHO,
-    RIGHT_ECHO,
-    LEFT_TRIG,
-    RIGHT_TRIG,
-    pwm,))
-
-forward()
-
-left_right_thread.start()
-sleep(2)
-left_right_thread.join()
 
 
+# left_right_thread = threading.Thread(target=check_right_left,args=(
+#     LEFT_ECHO,
+#     RIGHT_ECHO,
+#     LEFT_TRIG,
+#     RIGHT_TRIG,
+#     pwm,))
 
-GPIO.cleanup()
+def adjust(adjust_left,adjust_right,FAVORED_SIDE,CURRENT_DC):
+    if FAVORED_SIDE == 'right':
+        print("Calling adj right")
+        CURRENT_DC = adjust_right(pwm,CURRENT_DC)
+        sleep(0.2)
+        set_neutral(pwm)
+        sleep(0.2)
+    else:
+        print("Calling adj left")
+        CURRENT_DC = adjust_left(pwm,CURRENT_DC)
+        sleep(0.2)
+        set_neutral(pwm)
+        sleep(0.2)
+    return
+
+
+FAVORED_SIDE = None
+
+try:
+    while True:
+                
+        adjust_thread = threading.Thread(target=adjust,args=(adjust_left,adjust_right,FAVORED_SIDE,CURRENT_DC))
+        data = check_right_left(LEFT_ECHO,RIGHT_ECHO,LEFT_TRIG,RIGHT_TRIG,pwm)
+        if(data[0] < 7 or data[1] < 7):
+            if(data[0] < 7):
+                FAVORED_SIDE = "right"
+                adjust_thread.start()
+            else:
+                FAVORED_SIDE =  "left"
+                adjust_thread.start()
+        else:
+            continue
+
+except:
+    GPIO.cleanup()
+
+
+# GPIO.cleanup()
