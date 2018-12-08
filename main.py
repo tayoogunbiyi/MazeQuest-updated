@@ -94,9 +94,9 @@ left_right_thread = threading.Thread(target=check_right_left,args=(
     pwm,))
 
 forward()
-sleep(2)
-left_right_thread.start()
 
+left_right_thread.start()
+sleep(2)
 left_right_thread.join()
 
 
