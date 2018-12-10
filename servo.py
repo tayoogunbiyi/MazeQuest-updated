@@ -37,8 +37,18 @@ def adjust_left(pwm,duty_cycle):
     if(duty_cycle != 7.5): return duty_cycle
     GPIO.output(Motor1E,GPIO.HIGH)
     GPIO.output(Motor2E,GPIO.LOW)
+    GPIO.output(Motor2A,GPIO.LOW)
+    GPIO.output(Motor2B,GPIO.LOW)
+    GPIO.output(Motor1A,GPIO.HIGH)
+    GPIO.output(Motor1B,GPIO.LOW)
     time.sleep(0.3)
-    GPIO.output(Motor2E,GPIO.HIGH)
+    GPIO.output(Motor1E,GPIO.LOW)
+    GPIO.output(Motor2E,GPIO.LOW)
+    GPIO.output(Motor2A,GPIO.LOW)
+    GPIO.output(Motor2B,GPIO.LOW)
+    GPIO.output(Motor1A,GPIO.LOW)
+    GPIO.output(Motor1B,GPIO.LOW)
+    
     
     new_duty_cycle = duty_cycle-2
     pwm.ChangeDutyCycle(new_duty_cycle)
@@ -48,8 +58,23 @@ def adjust_right(pwm,duty_cycle):
     if duty_cycle != 7.5: return duty_cycle
     GPIO.output(Motor2E,GPIO.HIGH)
     GPIO.output(Motor1E,GPIO.LOW)
+    GPIO.output(Motor1A,GPIO.LOW)
+    GPIO.output(Motor1B,GPIO.LOW)
+    GPIO.output(Motor2A,GPIO.HIGH)
+    GPIO.output(Motor2B,GPIO.LOW)
+    time.sleep(0.3)
+    GPIO.output(Motor2E,GPIO.LOW)
+    GPIO.output(Motor1E,GPIO.LOW)
+    GPIO.output(Motor1A,GPIO.LOW)
+    GPIO.output(Motor1B,GPIO.LOW)
+    GPIO.output(Motor2A,GPIO.LOW)
+    GPIO.output(Motor2B,GPIO.LOW)
+    
+    GPIO.output(Motor2E,GPIO.HIGH)
+    GPIO.output(Motor1E,GPIO.LOW)
     time.sleep(0.3)
     GPIO.output(Motor1E,GPIO.HIGH)
+    
     
     new_duty_cycle = duty_cycle+2
     pwm.ChangeDutyCycle(new_duty_cycle)

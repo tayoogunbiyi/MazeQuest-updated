@@ -5,8 +5,9 @@ from time import sleep
 from servo import set_neutral,turn_left,turn_right,adjust_left,adjust_right
 from ultrasonic import check_right_left,read_distance
 
-GPIO.setmode(GPIO.BOARD)
+MOVING_BACKWARDS = False
 
+GPIO.setmode(GPIO.BOARD)
 GPIO.setup(8,GPIO.OUT)
 pwm = GPIO.PWM(8, 50)
 CURRENT_DC = 7.5
@@ -63,6 +64,7 @@ def forward():
     GPIO.output(Motor2A,GPIO.HIGH)
     GPIO.output(Motor2B,GPIO.LOW)
     GPIO.output(Motor2E,GPIO.HIGH)
+    return False
  
 def backward(): 
     print "Going backwards"
@@ -75,46 +77,53 @@ def backward():
     GPIO.output(Motor2A,GPIO.LOW)
     GPIO.output(Motor2B,GPIO.HIGH)
     GPIO.output(Motor2E,GPIO.HIGH)
+    return True
  
 def stop():
     print "Now stop"
     MOVING_BACKWARDS = False
     GPIO.output(Motor1E,GPIO.LOW)
     GPIO.output(Motor2E,GPIO.LOW)
+    return False
 
 
-
-def spin():
-    set_neutral()
-    sleep(0.2)
+def spin(direction='default'):
+    '''
+    Don't pass anything when turning 180 deg
+    '''
+    if direction == 'default':
+        interval = 0.80
+    elif direction == 'left':
+        interval = 0.45
+    else:
+        interval = 0.40
+    
+    turn_right(pwm)
+    sleep(0.1)
     GPIO.output(Motor1E,GPIO.HIGH)
     GPIO.output(Motor2E,GPIO.HIGH)
-    GPIO.output(Motor1A,GPIO.HIGH)
-    GPIO.output(Motor1B,GPIO.LOW)
-    GPIO.output(Motor2A,GPIO.LOW)
-    GPIO.output(Motor2B,GPIO.HIGH)
-    sleep(0.7)
-def front_distance():
-    print("Calling front distance")
-    i = 0 
-    i+=1
-    distance = read_distance(FRONT_ECHO,FRONT_TRIG)
-    print("distance : ",distance)
-    if distance < 10:
-        print("Distance is less than 10")
-        stop()
-        sleep(0.1)
-        backward()
-        sleep(0.5)
-        spin()
-        sleep(0.75)
-        stop()
-        sleep(0.1)
-        forward()
+        
+    if direction == 'right':
+        
+        GPIO.output(Motor1A,GPIO.LOW)
+        GPIO.output(Motor1B,GPIO.HIGH)
+        GPIO.output(Motor2A,GPIO.HIGH)
+        GPIO.output(Motor2B,GPIO.LOW)
+        sleep(interval)
+        set_neutral(pwm)
+        MOVING_BACKWARDS = stop()
+        return
     else:
-        pass
-
-
+        GPIO.output(Motor1A,GPIO.HIGH)
+        GPIO.output(Motor1B,GPIO.LOW)
+        GPIO.output(Motor2A,GPIO.LOW)
+        GPIO.output(Motor2B,GPIO.HIGH)
+        sleep(interval)
+        set_neutral(pwm)
+        MOVING_BACKWARDS = stop()
+    print("Direction : ",direction)
+    print("INterval :",interval)
+        
 
 # left_right_thread = threading.Thread(target=check_right_left,args=(
 #     LEFT_ECHO,
@@ -124,41 +133,48 @@ def front_distance():
 #     pwm,))
 
 def adjust(adjust_left,adjust_right,FAVORED_SIDE,CURRENT_DC):
+    print("favored side : ",FAVORED_SIDE)
     if FAVORED_SIDE == 'right':
         print("Calling adj right")
+        MOVING_BACKWARDS = backward()
+        sleep(0.3)
+        MOVING_BACKWARDS = stop()
         CURRENT_DC = adjust_right(pwm,CURRENT_DC)
         sleep(0.2)
         set_neutral(pwm)
         sleep(0.2)
     else:
         print("Calling adj left")
+        MOVING_BACKWARDS = backward()
+        sleep(0.3)
+        MOVING_BACKWARDS = stop()
         CURRENT_DC = adjust_left(pwm,CURRENT_DC)
         sleep(0.2)
         set_neutral(pwm)
         sleep(0.2)
-    return
+    return FAVORED_SIDE
 
 
 FAVORED_SIDE = None
-MOVING_BACKWARDS = False
 
-#forward()
 try:
     while True:
-        if read_distance(FRONT_ECHO,FRONT_TRIG) < 5:
-            backward()
+        print("Entering loop..........")
+        if read_distance(FRONT_ECHO,FRONT_TRIG) < 7.5:
+            MOVING_BACKWARDS = backward()
             continue
         data = check_right_left(LEFT_ECHO,RIGHT_ECHO,LEFT_TRIG,RIGHT_TRIG,pwm)
         print(data)
         print("Moving backwards is ",MOVING_BACKWARDS)
         if MOVING_BACKWARDS and data[0] > 6 and data[1] > 6:
             print("MOVING BACKWARDS TRUE")
-            stop()
+            MOVING_BACKWARDS = stop()
             sleep(0.2)
-            spin()
+            spin("left")
             continue
         
-        adjust_thread = threading.Thread(target=adjust,args=(adjust_left,adjust_right,FAVORED_SIDE,CURRENT_DC))
+        
+        
         
         data = check_right_left(LEFT_ECHO,RIGHT_ECHO,LEFT_TRIG,RIGHT_TRIG,pwm)
         if not data:
@@ -166,18 +182,18 @@ try:
         if(data[0] < 7 or data[1] < 7):
             if(data[0] < 7):
                 FAVORED_SIDE = "right"
-                if not adjust_thread.is_alive():
-                    adjust_thread.start()
+                adjust_thread = threading.Thread(target=adjust,args=(adjust_left,adjust_right,FAVORED_SIDE,CURRENT_DC))
+                adjust_thread.start()
                 
             else:
                 FAVORED_SIDE =  "left"
-                if not adjust_thread.is_alive():
-                    adjust_thread.start()
+                adjust_thread = threading.Thread(target=adjust,args=(adjust_left,adjust_right,FAVORED_SIDE,CURRENT_DC))
+                adjust_thread.start()
                 
                 
         else:
-            continue
-
+            MOVING_BACKWARDS = forward()
+            print("Done moving forward ....")
 except Exception as e:
     stop()
     GPIO.cleanup()
