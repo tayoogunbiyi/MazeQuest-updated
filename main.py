@@ -25,6 +25,7 @@ RIGHT_ECHO = 35
 LEFT_TRIG = 19
 LEFT_ECHO = 21
 
+NOT_MOVING_COUNT = 0
 
 GPIO.setup(LEFT_TRIG,GPIO.OUT)
 GPIO.output(LEFT_TRIG,0)
@@ -92,6 +93,8 @@ def spin(direction='default'):
     '''
     Don't pass anything when turning 180 deg
     '''
+    GPIO.output(Motor1E,GPIO.HIGH)
+    GPIO.output(Motor2E,GPIO.HIGH)
     if direction == 'default':
         interval = 0.80
         balanced = False
@@ -102,7 +105,7 @@ def spin(direction='default'):
                 if(data[0] < 7):
                     if MOVING_BACKWARDS:
                         FAVORED_SIDE = "left"
-                    else
+                    else:
                         FAVORED_SIDE = "right"
                     adjust_thread = threading.Thread(target=adjust,args=(adjust_left,adjust_right,FAVORED_SIDE,CURRENT_DC))
                     adjust_thread.start()
@@ -110,11 +113,11 @@ def spin(direction='default'):
                 else:
                     if MOVING_BACKWARDS:
                         FAVORED_SIDE = "right"
-                    else
+                    else:
                         FAVORED_SIDE = "left"
                     adjust_thread = threading.Thread(target=adjust,args=(adjust_left,adjust_right,FAVORED_SIDE,CURRENT_DC))
                     adjust_thread.start()
-            if((data[0] > 5 or data[1] > 5):
+            if(data[0] > 5 or data[1] > 5):
                 balanced = True
 
     elif direction == 'left':
@@ -183,38 +186,49 @@ FAVORED_SIDE = None
 
 try:
     while True:
+        set_neutral(pwm)
+        sleep(0.2)
+        
         if read_distance(FRONT_ECHO,FRONT_TRIG) < 14:
+            print("Stoping...")
             stop()
-            sleep(0.3)
+            sleep(0.1)
             color = get_color()
-            
+            color = None
             if color == "red":
+
                 spin("left")
-                print("Should turn left")
+                print("Should turn left  red")
             elif color == "blue":
                 spin("right")
-                print("Should turn right to exit")
+                print("Should turn right to exit blue ")
             elif color == "black":
                 spin()
-                print("Should turn around")
+                print("Should turn around black")
             elif color == "green":
                 spin("right")
-                print("Should turn right")
+                print("Should turn right green ")
             else:
+                print("Color is ",color)
                 data = check_right_left(LEFT_ECHO,RIGHT_ECHO,LEFT_TRIG,RIGHT_TRIG,pwm)
-                if(data[0} > data [1]):
+                if not data:
+                    continue
+                if(data[0] > data [1]):
                     spin("left")
                 elif (data[0] < data[1]):
                     spin("right")
+                
 
-            continue
+            
        
         
         data = check_right_left(LEFT_ECHO,RIGHT_ECHO,LEFT_TRIG,RIGHT_TRIG,pwm)
         if not data:
             continue
-        if(data[0] < 7 or data[1] < 7):
-            if(data[0] < 7):
+        if(data[0] < 5 or data[1] < 5):
+            stop()
+            sleep(0.1)
+            if(data[0] < 5):
                 FAVORED_SIDE = "right"
                 adjust_thread = threading.Thread(target=adjust,args=(adjust_left,adjust_right,FAVORED_SIDE,CURRENT_DC))
                 adjust_thread.start()
@@ -227,6 +241,7 @@ try:
                 
         else:
             MOVING_BACKWARDS = forward()
+            NOT_MOVING_COUNT+=1
             print("Done moving forward ....")
 except Exception as e:
     stop()

@@ -58,6 +58,7 @@ def get_color():
     print(red)
     print(green)
     print(blue)
+    return 
     if green<1500 and blue<2000 and red>195 and green > 500 and blue > 500:
         return "red"
         
@@ -72,4 +73,3 @@ def get_color():
     else:
         return None
     
-
