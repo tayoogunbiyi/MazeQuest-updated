@@ -7,7 +7,7 @@ S2 = 3
 S3 = 5
 signal = 12
 NUM_CYCLES = 10
-#GPIO.setmode(GPIO.BOARD)
+GPIO.setmode(GPIO.BOARD)
 
 def setup():
   GPIO.setup(signal,GPIO.IN, pull_up_down=GPIO.PUD_UP)
@@ -25,7 +25,6 @@ def setup():
 GPIO.setwarnings(False)
 
 def get_color():
-    setup()
     GPIO.output(40,GPIO.HIGH)
     GPIO.output(S2,GPIO.LOW)
     GPIO.output(S3,GPIO.LOW)

@@ -4,6 +4,7 @@ import RPi.GPIO as GPIO
 from time import sleep
 from servo import set_neutral,turn_left,turn_right,adjust_left,adjust_right
 from ultrasonic import check_right_left,read_distance
+from color import get_color
 
 MOVING_BACKWARDS = False
 
@@ -93,6 +94,21 @@ def spin(direction='default'):
     '''
     if direction == 'default':
         interval = 0.80
+        balanced = False
+        while not balanced:
+            data = check_right_left(LEFT_ECHO,RIGHT_ECHO,LEFT_TRIG,RIGHT_TRIG,pwm)
+            if not data : continue
+            if(data[0] < 7 or data[1] < 7):
+                if(data[0] < 7):
+                    FAVORED_SIDE = "right"
+                    adjust_thread = threading.Thread(target=adjust,args=(adjust_left,adjust_right,FAVORED_SIDE,CURRENT_DC))
+                    adjust_thread.start()
+                    
+                else:
+                    FAVORED_SIDE =  "left"
+                    adjust_thread = threading.Thread(target=adjust,args=(adjust_left,adjust_right,FAVORED_SIDE,CURRENT_DC))
+                    adjust_thread.start()
+
     elif direction == 'left':
         interval = 0.45
     else:
@@ -159,9 +175,25 @@ FAVORED_SIDE = None
 
 try:
     while True:
-        print("Entering loop..........")
-        if read_distance(FRONT_ECHO,FRONT_TRIG) < 7.5:
-            MOVING_BACKWARDS = backward()
+        if read_distance(FRONT_ECHO,FRONT_TRIG) < 14:
+            stop()
+            sleep(0.3)
+            color = get_color()
+            
+            if color == "red":
+                #turn left 
+                print("Should turn left")
+            elif color == "blue":
+                #turn right to exit
+                print("Should turn right to exit")
+            elif color == "black":
+                    
+                spin()
+            elif color == "green":
+                #turn right
+                print("Should turn right")
+            
+
             continue
         data = check_right_left(LEFT_ECHO,RIGHT_ECHO,LEFT_TRIG,RIGHT_TRIG,pwm)
         print(data)
