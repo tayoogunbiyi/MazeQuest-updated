@@ -100,14 +100,22 @@ def spin(direction='default'):
             if not data : continue
             if(data[0] < 7 or data[1] < 7):
                 if(data[0] < 7):
-                    FAVORED_SIDE = "right"
+                    if MOVING_BACKWARDS:
+                        FAVORED_SIDE = "left"
+                    else
+                        FAVORED_SIDE = "right"
                     adjust_thread = threading.Thread(target=adjust,args=(adjust_left,adjust_right,FAVORED_SIDE,CURRENT_DC))
                     adjust_thread.start()
                     
                 else:
-                    FAVORED_SIDE =  "left"
+                    if MOVING_BACKWARDS:
+                        FAVORED_SIDE = "right"
+                    else
+                        FAVORED_SIDE = "left"
                     adjust_thread = threading.Thread(target=adjust,args=(adjust_left,adjust_right,FAVORED_SIDE,CURRENT_DC))
                     adjust_thread.start()
+            if((data[0] > 5 or data[1] > 5):
+                balanced = True
 
     elif direction == 'left':
         interval = 0.45
@@ -181,32 +189,26 @@ try:
             color = get_color()
             
             if color == "red":
-                #turn left 
+                spin("left")
                 print("Should turn left")
             elif color == "blue":
-                #turn right to exit
+                spin("right")
                 print("Should turn right to exit")
             elif color == "black":
-                    
                 spin()
+                print("Should turn around")
             elif color == "green":
-                #turn right
+                spin("right")
                 print("Should turn right")
-            
+            else:
+                data = check_right_left(LEFT_ECHO,RIGHT_ECHO,LEFT_TRIG,RIGHT_TRIG,pwm)
+                if(data[0} > data [1]):
+                    spin("left")
+                elif (data[0] < data[1]):
+                    spin("right")
 
             continue
-        data = check_right_left(LEFT_ECHO,RIGHT_ECHO,LEFT_TRIG,RIGHT_TRIG,pwm)
-        print(data)
-        print("Moving backwards is ",MOVING_BACKWARDS)
-        if MOVING_BACKWARDS and data[0] > 6 and data[1] > 6:
-            print("MOVING BACKWARDS TRUE")
-            MOVING_BACKWARDS = stop()
-            sleep(0.2)
-            spin("left")
-            continue
-        
-        
-        
+       
         
         data = check_right_left(LEFT_ECHO,RIGHT_ECHO,LEFT_TRIG,RIGHT_TRIG,pwm)
         if not data:
