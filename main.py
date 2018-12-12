@@ -188,6 +188,11 @@ FAVORED_SIDE = None
 try:
     while True:
         set_neutral(pwm)
+	forward()
+	sleep(0.2)
+	#sleep(0.1)
+	#GPIO.cleanup()
+	#break
 
 	
         GPIO.output(40,GPIO.LOW)
