@@ -201,6 +201,8 @@ try:
             elif (data[0] < data[1]):
                 spin("right")
         data = check_right_left(LEFT_ECHO,RIGHT_ECHO,LEFT_TRIG,RIGHT_TRIG,pwm)
+        if not data:
+            continue
         if data[0] > (2*data[1]):
             stop()
             sleep(0.2)
