@@ -188,21 +188,36 @@ FAVORED_SIDE = None
 try:
     while True:
         set_neutral(pwm)
-
-	
+        sleep(0.2)
         GPIO.output(40,GPIO.LOW)
         
         if read_distance(FRONT_ECHO,FRONT_TRIG) < 14:
             print("Stoping...")
             stop()
             sleep(0.1)
-	    data = check_right_left(LEFT_ECHO,RIGHT_ECHO,LEFT_TRIG,RIGHT_TRIG,pwm)
-	    if not data:
-                continue
-            if(data[0] > data [1]):
-               spin("left")
-            elif(data[0] < data[1]):
-               spin("right")
+            color = get_color()
+            
+            if color == "red":
+                spin("left")
+                print("Should turn left  red")
+            elif color == "blue":
+                spin("right")
+                print("Should turn right to exit blue ")
+            elif color == "black":
+                spin()
+                print("Should turn around black")
+            elif color == "green":
+                spin("right")
+                print("Should turn right green ")
+            else:
+                print("Color is ",color)
+                data = check_right_left(LEFT_ECHO,RIGHT_ECHO,LEFT_TRIG,RIGHT_TRIG,pwm)
+                if not data:
+                    continue
+                if(data[0] > data [1]):
+                    spin("left")
+                elif (data[0] < data[1]):
+                    spin("right")
                     
                 
 
@@ -216,18 +231,17 @@ try:
 	   stop()
 	   sleep(0.1)
 	   spin("left")
-	   forward()
-	   sleep(0.3)
 	elif data[1] > (2*data[0]):
-	    stop()
-	    sleep(0.1)
-	    spin("right")
-	    forward()
-	    sleep(0.3)
+	   stop()
+	   sleep(0.1)
+	   spin("right")
+
+	  
         elif(data[0] < 5 or data[1] < 5):
             stop()
             sleep(0.1)
-            if(data[0] < 5):
+	    			
+            if(data[0] < 5  ):
                 FAVORED_SIDE = "right"
                 adjust_thread = threading.Thread(target=adjust,args=(adjust_left,adjust_right,FAVORED_SIDE,CURRENT_DC))
                 adjust_thread.start()

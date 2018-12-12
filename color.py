@@ -26,7 +26,7 @@ GPIO.setwarnings(False)
 
 def get_color():
     setup()
-    GPIO.output(40,GPIO.HIGH)
+    GPIO.output(40,GPIO.LOW)
     GPIO.output(S2,GPIO.LOW)
     GPIO.output(S3,GPIO.LOW)
     time.sleep(0.3)
@@ -58,11 +58,12 @@ def get_color():
     print(red)
     print(green)
     print(blue)
-    return 
+    print("Max is ",max(red,green,blue))
+    
     if green<1500 and blue<2000 and red>195 and green > 500 and blue > 500:
         return "red"
         
-    elif green > red and  green > blue and green>600:
+    elif blue == max(green,blue,red) and blue>3000:
         return "green"
         
     elif blue > green and blue > red and blue>600:

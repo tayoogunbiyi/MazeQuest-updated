@@ -188,21 +188,33 @@ FAVORED_SIDE = None
 try:
     while True:
         set_neutral(pwm)
-
-	
+        sleep(0.2)
         GPIO.output(40,GPIO.LOW)
         
         if read_distance(FRONT_ECHO,FRONT_TRIG) < 14:
             print("Stoping...")
             stop()
             sleep(0.1)
-	    data = check_right_left(LEFT_ECHO,RIGHT_ECHO,LEFT_TRIG,RIGHT_TRIG,pwm)
-	    if not data:
-                continue
-            if(data[0] > data [1]):
-               spin("left")
-            elif(data[0] < data[1]):
-               spin("right")
+            color = get_color()
+            
+            if color == "red":
+                spin("left")
+                print("Should turn left  red")
+            elif color == "blue":
+                spin("right")
+                print("Should turn right to exit blue ")
+            elif color == "black":
+                spin()
+                print("Should turn around black")
+            elif color == "green":
+                spin("right")
+                print("Should turn right green ")
+            else:
+                print("Color is ",color)
+                data = check_right_left(LEFT_ECHO,RIGHT_ECHO,LEFT_TRIG,RIGHT_TRIG,pwm)
+                if not data:
+                    continue
+                if(data[0] > data [1]
                     
                 
 
