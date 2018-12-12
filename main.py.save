@@ -36,6 +36,7 @@ GPIO.output(RIGHT_TRIG,0)
 GPIO.setup(RIGHT_ECHO,GPIO.IN)
 
 GPIO.setup(FRONT_TRIG,GPIO.OUT)
+GPIO.setup(40,GPIO.OUT)
 GPIO.output(FRONT_TRIG,0)
 GPIO.setup(FRONT_ECHO,GPIO.IN)
 
@@ -183,41 +184,53 @@ def adjust(adjust_left,adjust_right,FAVORED_SIDE,CURRENT_DC):
 
 
 FAVORED_SIDE = None
-
+        
 try:
     while True:
+        set_neutral(pwm)
+	
+	#sleep(0.2)
+	#turn_right(pwm)
+	sleep(0.1)
+	GPIO.cleanup()
+	break
+
+	
+        GPIO.output(40,GPIO.LOW)
         
         if read_distance(FRONT_ECHO,FRONT_TRIG) < 14:
             print("Stoping...")
             stop()
             sleep(0.1)
-            
-            print("Color is ",color)
-            data = check_right_left(LEFT_ECHO,RIGHT_ECHO,LEFT_TRIG,RIGHT_TRIG,pwm)
-            if not data:
+	    data = check_right_left(LEFT_ECHO,RIGHT_ECHO,LEFT_TRIG,RIGHT_TRIG,pwm)
+	    if not data:
                 continue
             if(data[0] > data [1]):
-                spin("left")
-            elif (data[0] < data[1]):
-                spin("right")
-        data = check_right_left(LEFT_ECHO,RIGHT_ECHO,LEFT_TRIG,RIGHT_TRIG,pwm)
-        if data[0] > (2*data[1]):
-            stop()
-            sleep(0.2)
-            spin("left")
-            forward()
+               spin("left")
+            elif(data[0] < data[1]):
+               spin("right")
+                    
+                
 
-        elif data[0] > (2*data[1]):
-            stop()
-            sleep(0.2)
-            spin("right")
-            forward()
             
+       
         
         data = check_right_left(LEFT_ECHO,RIGHT_ECHO,LEFT_TRIG,RIGHT_TRIG,pwm)
         if not data:
             continue
-        if(data[0] < 5 or data[1] < 5):
+	if data[0] > (2*data[1]):
+	   stop()
+	   sleep(0.1)
+	   spin("left")
+	   forward()
+	   sleep(0.3)
+	elif data[1] > (2*data[0]):
+	    stop()
+	    sleep(0.1)
+	    spin("right")
+	    forward()
+	    sleep(0.3)
+        elif(data[0] < 5 or data[1] < 5):
             stop()
             sleep(0.1)
             if(data[0] < 5):
@@ -240,4 +253,5 @@ except Exception as e:
     GPIO.cleanup()
     print(e)
     GPIO.cleanup()
+
 
